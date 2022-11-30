@@ -5,21 +5,25 @@ Bot-ассистент проверки домашних заданий Прак
 Периодичность запросов к API задается константой RETRY_PERIOD.
 """
 
-
 import http
 import logging
 import requests
 import telegram
 import time
 
+from dotenv import load_dotenv
 from json.decoder import JSONDecodeError
 
-from settings import (ENDPOINT, HEADERS, HOMEWORK_VERDICTS,
+from settings import (ENDPOINT, HOMEWORK_VERDICTS,
                       LOG_FORMAT_STRING, LOG_LEVEL, LOG_OUTPUT,
-                      RETRY_PERIOD, TELEGRAM_TOKEN,
+                      PRACTICUM_TOKEN, RETRY_PERIOD, TELEGRAM_TOKEN,
                       TELEGRAM_CHAT_ID)
 import exceptions as ex
 
+
+load_dotenv()
+
+HEADERS: dict = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
 logger = logging.getLogger(__name__)
 sh = logging.StreamHandler(stream=LOG_OUTPUT)

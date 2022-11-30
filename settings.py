@@ -2,19 +2,15 @@ import logging
 import os
 import sys
 
-from dotenv import load_dotenv
-
-load_dotenv()
 
 PRACTICUM_TOKEN: str = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN: str = os.getenv('TELEGRAM_TOKEN')
-TELEGRAM_CHAT_ID: int = os.getenv('TELEGRAM_CHAT_ID')
+TELEGRAM_CHAT_ID: str = os.getenv('TELEGRAM_CHAT_ID')
 
 RETRY_PERIOD: int = 60 * 10
 
 ENDPOINT: str = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 
-HEADERS: dict = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
 HOMEWORK_VERDICTS: dict = {
     'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
