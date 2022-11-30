@@ -2,6 +2,9 @@ import logging
 import os
 import sys
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 PRACTICUM_TOKEN: str = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN: str = os.getenv('TELEGRAM_TOKEN')

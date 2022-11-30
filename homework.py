@@ -11,7 +11,7 @@ import requests
 import telegram
 import time
 
-from dotenv import load_dotenv
+
 from json.decoder import JSONDecodeError
 
 from settings import (ENDPOINT, HOMEWORK_VERDICTS,
@@ -20,8 +20,6 @@ from settings import (ENDPOINT, HOMEWORK_VERDICTS,
                       TELEGRAM_CHAT_ID)
 import exceptions as ex
 
-
-load_dotenv()
 
 HEADERS: dict = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
