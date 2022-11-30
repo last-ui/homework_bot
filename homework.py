@@ -1,9 +1,7 @@
-"""
-Bot-ассистент проверки домашних заданий Практикум.Домашка.
+"""Bot-ассистент проверки домашних заданий Практикум.Домашка.
 Все настройки модуля в файле settings.py.
 Не меняйте код внутри данного файла.
-Периодичность запросов к API задается константой RETRY_PERIOD.
-"""
+Периодичность запросов к API задается константой RETRY_PERIOD."""
 
 
 import http
@@ -94,13 +92,13 @@ def check_response(response: dict) -> tuple:
         raise ex.APIResponseTypeErrorException(message)
 
     if 'homeworks' not in response.keys():
-        message: str = ('Ошибка: в словаре ответа сервера отсутствует ключ' 
+        message: str = ('Ошибка: в словаре ответа сервера отсутствует ключ'
                         ' "homeworks"')
         logger.error(message)
         raise ex.DictKeyErrorException(message)
 
     if 'current_date' not in response.keys():
-        message: str = ('Ошибка: в словаре ответа сервера отсутствует ключ' 
+        message: str = ('Ошибка: в словаре ответа сервера отсутствует ключ'
                         ' "current_date"')
         logger.error(message)
         raise ex.DictKeyErrorException(message)
@@ -150,15 +148,13 @@ def parse_status(homework: dict) -> str:
 
 
 def main() -> None:
-    """
-    Основная логика работы бота:
+    """Основная логика работы бота:
     1. Проверка доступности обязательных переменных окружения check_tokens()
     2. Запрос к API get_api_answer()
     3. Проверка ответа на корректность данных check_response()
     4. При наличии корректных данных в ответе парсинг статуса parse_status()
     5. Отправка сообщений в Telegram send_message()
-    6. Пауза RETRY_PERIOD и возврат к началу цикла.
-    """
+    6. Пауза RETRY_PERIOD и возврат к началу цикла."""
     if check_tokens():
         bot: telegram.Bot = telegram.Bot(token=TELEGRAM_TOKEN)
         timestamp: int = int(time.time()) - RETRY_PERIOD
