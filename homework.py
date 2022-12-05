@@ -56,7 +56,7 @@ def get_api_answer(timestamp: int) -> dict:
 
 def check_response(response: dict) -> tuple:
     """Проверка API-ответа на соответствие требований документации."""
-    logging.debug(f'Старт проверки ответа сервера')
+    logging.debug('Старт проверки ответа сервера')
     if not isinstance(response, dict):
         message: str = 'Ошибка: ответ сервера должен содержать тип данных dict'
         raise ex.APIResponseTypeErrorException(message)
@@ -76,7 +76,7 @@ def check_response(response: dict) -> tuple:
     if not isinstance(current_date, int):
         message: str = 'Ошибка: тип данных объекта "current_date" не int'
         raise ex.APIResponseTypeErrorException(message)
-    logging.debug(f'Проверка ответа успешно выполнена')
+    logging.debug('Проверка ответа успешно выполнена')
     return homeworks, current_date
 
 
