@@ -15,7 +15,7 @@ from json.decoder import JSONDecodeError
 
 import exceptions as ex
 from settings import (ENDPOINT, HEADERS, HOMEWORK_VERDICTS,
-                      LOG_FORMAT_STRING, LOG_LEVEL, LOG_OUTPUT,
+                      LOG_FORMAT_STRING, LOG_LEVEL, LOG_OUTPUT, LOG_FILENAME,
                       PRACTICUM_TOKEN, RETRY_PERIOD, TELEGRAM_TOKEN,
                       TELEGRAM_CHAT_ID)
 
@@ -30,6 +30,11 @@ def send_message(bot: telegram.Bot, message: str) -> None:
     try:
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
     except Exception as error:
+        '''удаление отсюда логгирования не пропускают тесты:
+        FAILED tests/test_bot.py::TestHomework::test_send_message_with_tg_error
+         - AssertionError: Убедитесь, что ошибка отправки сообщения в Telegram
+          логируется с уровнем `ERROR`.
+        '''
         logging.error(f'Ошибка при отправке сообщения телеграм: {error}')
         raise ex.TelegramErrorException(error)
     else:
@@ -42,16 +47,21 @@ def get_api_answer(timestamp: int) -> dict:
     try:
         logging.debug(f'Отправлен запрос на {ENDPOINT}')
         response = requests.get(ENDPOINT, headers=HEADERS, params=payload)
+        logging.debug(f'Ответ с {ENDPOINT} получен')
+        if response.status_code != http.HTTPStatus.OK:
+            message = (f'Ошибка при отправке запроса на {ENDPOINT}: '
+                       f'status_code - {response.status_code}, ',
+                       f'reason - {response.reason}, ',
+                       f'text - {response.text}, ',
+                       f'headers - {HEADERS}, ',
+                       f'params - {payload}')
+            raise ex.BadRequest(message)
         homework_statuses = response.json()
+        return homework_statuses
     except JSONDecodeError as error:
         raise ex.JSONException(error)
     except Exception as error:
         raise ex.UnknownAPIException(ENDPOINT, error)
-    else:
-        logging.debug(f'Ответ с {ENDPOINT} получен')
-        if response.status_code != http.HTTPStatus.OK:
-            raise ex.BadRequest(response, ENDPOINT, HEADERS, payload)
-        return homework_statuses
 
 
 def check_response(response: dict) -> tuple:
@@ -68,8 +78,8 @@ def check_response(response: dict) -> tuple:
         message: str = ('Ошибка: в словаре ответа сервера отсутствует ключ'
                         ' "current_date"')
         raise ex.DictKeyErrorException(message)
-    homeworks = response.get('homeworks')
-    current_date = response.get('current_date')
+    homeworks = response['homeworks']
+    current_date = response['current_date']
     if not isinstance(homeworks, list):
         message: str = 'Ошибка: тип данных объекта "homeworks" не list'
         raise ex.APIResponseTypeErrorException(message)
@@ -122,23 +132,26 @@ def main() -> None:
     bot: telegram.Bot = telegram.Bot(token=TELEGRAM_TOKEN)
     timestamp: int = int(time.time())
     old_message: str = ''
+    old_error: str = ''
     while True:
         try:
             homework_statuses: dict = get_api_answer(timestamp)
             homeworks, timestamp = check_response(homework_statuses)
-            if not homeworks or not timestamp:
-                raise ex.NoNewInformation
-            message: str = parse_status(homeworks[0])
-            if message != old_message:
-                send_message(bot, message)
-                old_message = message
-        except ex.NoNewInformation:
-            logging.debug('Новая информация о статусе отсутствует')
+            if homeworks:
+                message: str = parse_status(homeworks[0])
+                if message != old_message:
+                    send_message(bot, message)
+                    old_message = message
+            else:
+                logging.debug('Новая информация о статусе отсутствует')
+        except ex.NoImportantInformation as error:
+            logging.error(error)
         except Exception as error:
             message: str = f'Сбой в работе программы: {error}'
             logging.error(message, exc_info=error)
-            if message != old_message:
+            if message != old_error:
                 send_message(bot, message)
+                old_error = message
         finally:
             time.sleep(RETRY_PERIOD)
 
@@ -147,6 +160,9 @@ if __name__ == '__main__':
     logging.basicConfig(
         format=LOG_FORMAT_STRING,
         level=LOG_LEVEL,
-        handlers=[logging.StreamHandler(stream=LOG_OUTPUT)]
+        handlers=[
+            logging.StreamHandler(stream=LOG_OUTPUT),
+            logging.FileHandler(LOG_FILENAME)
+        ]
     )
     main()

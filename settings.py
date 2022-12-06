@@ -24,5 +24,6 @@ HOMEWORK_VERDICTS: dict = {
 }
 
 LOG_FORMAT_STRING = '%(asctime)s:%(levelname)s:%(name)s:%(lineno)d:%(message)s'
-LOG_LEVEL = logging.INFO
+LOG_LEVEL = logging.DEBUG
 LOG_OUTPUT = sys.stdout
+LOG_FILENAME = os.path.abspath('debug.log')
