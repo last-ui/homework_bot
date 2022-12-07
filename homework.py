@@ -30,13 +30,7 @@ def send_message(bot: telegram.Bot, message: str) -> None:
     try:
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
     except Exception as error:
-        '''удаление отсюда логгирования не пропускают тесты:
-        FAILED tests/test_bot.py::TestHomework::test_send_message_with_tg_error
-         - AssertionError: Убедитесь, что ошибка отправки сообщения в Telegram
-          логируется с уровнем `ERROR`.
-        '''
         logging.error(f'Ошибка при отправке сообщения телеграм: {error}')
-        raise ex.TelegramErrorException(error)
     else:
         logging.debug(f'Сообщение: "{message}" успешно отправлено')
 

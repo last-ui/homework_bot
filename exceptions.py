@@ -20,8 +20,3 @@ class APIResponseTypeErrorException(TypeError):
 
 class UnknownAPIException(Exception):
     """Ошибка при отправке запроса к API"""
-
-
-class TelegramErrorException(NoImportantInformation):
-    """Ошибка при отправке сообщения телеграм"""
-
